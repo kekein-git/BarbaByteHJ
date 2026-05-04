@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}CRM Barbearia | Login{% endblock %}
+{% block body_class %}public-auth-body{% endblock %}
+{% block content %}
+<section class="login-shell">
+    <article class="login-card">
+        <div class="login-avatar" aria-hidden="true">
+            <span class="avatar-head"></span>
+            <span class="avatar-body"></span>
+        </div>
+        <form method="post" class="login-form">
+            <label>Email</label>
+            <input type="email" name="email" required>
+            <label>Senha</label>
+            <input type="password" name="password" required>
+            <div class="remember-row">
+                <label class="remember-check">
+                    <input type="checkbox" name="remember_me">
+                    <span>Lembrar de mim</span>
+                </label>
+                <a class="text-link" href="{{ url_for('main.client_register_page') }}">Criar usuario</a>
+            </div>
+            <button class="btn login-submit" type="submit">LOGIN</button>
+        </form>
+    </article>
+</section>
+{% endblock %}

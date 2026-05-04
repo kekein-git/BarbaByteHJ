@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Empresa{% endblock %}
+{% block content %}
+<section class="dashboard-head" id="company-dashboard">
+    <div>
+        <span class="eyebrow">Visao da empresa</span>
+        <h1>{{ metrics.company.name }}</h1>
+        <p>Controle de equipe, servicos, clientes e receitas.</p>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card"><span>Barbeiros</span><strong>{{ metrics.barbers_total }}</strong></article>
+    <article class="stat-card"><span>Clientes</span><strong>{{ metrics.clients_total }}</strong></article>
+    <article class="stat-card"><span>Servicos ativos</span><strong>{{ metrics.services_total }}</strong></article>
+    {% if metrics.company.allow_financial_dashboard %}
+    <article class="stat-card"><span>Receita total</span><strong>R$ {{ "%.2f"|format(metrics.revenue_total) }}</strong></article>
+    <article class="stat-card"><span>Receita mensal</span><strong>R$ {{ "%.2f"|format(metrics.revenue_month) }}</strong></article>
+    {% endif %}
+    <article class="stat-card"><span>Servicos no mes</span><strong>{{ metrics.finished_month }}</strong></article>
+</section>
+
+<section class="content-grid triple">
+    <article class="panel" id="user-create">
+        <h2>Cadastrar usuario</h2>
+        <p>Para cliente: nome, CPF, email, nascimento e senha. Para barbeiro: adicione RG, carteira e inicio de trabalho.</p>
+        <form method="post" action="{{ url_for('main.create_company_user') }}" class="stack-form">
+            <label>Nome completo<input type="text" name="full_name" required></label>
+            <label>Email<input type="email" name="email" required></label>
+            <label>Telefone<input type="text" name="phone"></label>
+            <label>CPF<input type="text" name="cpf" required></label>
+            <label>RG do barbeiro<input type="text" name="rg"></label>
+            <label>Carteira de trabalho do barbeiro<input type="text" name="work_card"></label>
+            <label>Data de nascimento<input type="date" name="birth_date"></label>
+            <label>Inicio de trabalho do barbeiro<input type="date" name="employment_start_date"></label>
+            <label>Senha<input type="password" name="password" required></label>
+            <label>Perfil
+                <select name="role" required>
+                    <option value="BARBEIRO">Barbeiro</option>
+                    <option value="CLIENTE">Cliente</option>
+                </select>
+            </label>
+            <button class="btn" type="submit">Criar usuario</button>
+        </form>
+    </article>
+
+    <article class="panel" id="service-create">
+        <h2>Cadastrar servico</h2>
+        <form method="post" action="{{ url_for('main.create_service') }}" class="stack-form">
+            <label>Nome<input type="text" name="name" required></label>
+            <label>Descricao<textarea name="description" rows="3"></textarea></label>
+            <label>Preco<input type="number" step="0.01" name="price" required></label>
+            <label>Duracao em minutos<input type="number" name="duration_minutes" value="30" min="10"></label>
+            <label>Barbeiros habilitados
+                <select name="barber_ids" multiple class="multi-select">
+                    {% for user in users if user.role == "BARBEIRO" %}
+                        <option value="{{ user.id }}">{{ user.full_name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="btn" type="submit">Salvar servico</button>
+        </form>
+    </article>
+
+    <article class="panel">
+        <h2>Lucro por barbeiro</h2>
+        {% if metrics.company.allow_financial_dashboard %}
+        <div class="barber-metrics">
+            {% for item in metrics.barber_metrics %}
+                <div class="metric-line">
+                    <strong>{{ item.barber.full_name }}</strong>
+                    <span>Total: R$ {{ "%.2f"|format(item.total_value) }}</span>
+                    <span>Mes: R$ {{ "%.2f"|format(item.month_value) }}</span>
+                    <span>Servicos: {{ item.services_total }}</span>
+                    <span>Proximos: {{ item.upcoming }}</span>
+                </div>
+            {% else %}
+                <p>Nenhum barbeiro cadastrado.</p>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p>O dashboard financeiro desta empresa foi desativado pelo ADMIN.</p>
+        {% endif %}
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel">
+        <h2>Dados e permissoes da empresa</h2>
+        <div class="barber-metrics">
+            <div class="metric-line">
+                <strong>Documento</strong>
+                <span>{{ metrics.company.document_number }}</span>
+            </div>
+            <div class="metric-line">
+                <strong>Plano</strong>
+                <span>{{ metrics.company.plan_name }}</span>
+            </div>
+            <div class="metric-line">
+                <strong>Mensalidade</strong>
+                <span>R$ {{ "%.2f"|format(metrics.company.monthly_fee) }}</span>
+            </div>
+            <div class="metric-line">
+                <strong>Agendamento online</strong>
+                <span>{{ "Liberado" if metrics.company.allow_online_booking else "Bloqueado" }}</span>
+            </div>
+            <div class="metric-line">
+                <strong>Financeiro</strong>
+                <span>{{ "Liberado" if metrics.company.allow_financial_dashboard else "Bloqueado" }}</span>
+            </div>
+            <div class="metric-line">
+                <strong>Notificacoes de barbeiro</strong>
+                <span>{{ "Liberado" if metrics.company.allow_barber_notifications else "Bloqueado" }}</span>
+            </div>
+        </div>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel">
+        <h2>Usuarios</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Perfil</th>
+                        <th>CPF</th>
+                        <th>Email</th>
+                        <th>Nascimento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.full_name }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>{{ user.cpf or "-" }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.birth_date.strftime("%d/%m/%Y") if user.birth_date else "-" }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5">Nenhum usuario cadastrado.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <article class="panel">
+        <h2>Agendamentos</h2>
+        <div class="appointment-stack">
+            {% for appointment in appointments %}
+                <div class="appointment-card">
+                    <div>
+                        <strong>{{ appointment.client.full_name }}</strong>
+                        <p>{{ appointment.service.name }} com {{ appointment.barber.full_name }}</p>
+                        <p>{{ appointment.scheduled_at.strftime("%d/%m/%Y %H:%M") }} | {{ appointment.status }}</p>
+                        <p>Obs: {{ appointment.note or "Sem observacoes" }}</p>
+                    </div>
+                    <form method="post" action="{{ url_for('main.company_change_appointment_status', appointment_id=appointment.id) }}" class="inline-form">
+                        <select name="status">
+                            <option value="AGENDADO">Agendado</option>
+                            <option value="REMARCADO">Remarcado</option>
+                            <option value="FINALIZADO">Finalizado</option>
+                            <option value="CANCELADO">Cancelado</option>
+                        </select>
+                        <input type="text" name="cancellation_reason" placeholder="Motivo do cancelamento">
+                        <button class="btn btn-small" type="submit">Atualizar</button>
+                    </form>
+                </div>
+            {% else %}
+                <p>Nenhum agendamento registrado.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}

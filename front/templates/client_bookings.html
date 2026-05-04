@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Cliente | Minhas Marcacoes{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Cliente</span>
+        <h1>Minhas marcacoes</h1>
+        <p>Remarque ou cancele seus horarios diretamente pelo sistema.</p>
+    </div>
+</section>
+
+<section class="panel dark-panel">
+    <div class="feed-list">
+        {% for appointment in appointments %}
+            <div class="feed-item column-feed">
+                <div class="split-line">
+                    <div>
+                        <strong>{{ appointment.service.name }}</strong>
+                        <p>Barbeiro: {{ appointment.barber.full_name }} | {{ appointment.scheduled_at.strftime("%d/%m/%Y %H:%M") }}</p>
+                        <p>{{ appointment.note or "Sem observacoes" }}</p>
+                    </div>
+                    <span class="value-badge">{{ appointment.status }}</span>
+                </div>
+                {% if appointment.status != "CANCELADO" and appointment.status != "FINALIZADO" %}
+                <div class="dual-form">
+                    <form method="post" action="{{ url_for('main.update_client_appointment', appointment_id=appointment.id) }}" class="stack-form mini-form">
+                        <input type="hidden" name="action" value="reschedule">
+                        <input type="datetime-local" name="scheduled_at" required>
+                        <textarea name="note" rows="2" placeholder="Nova observacao"></textarea>
+                        <button class="btn btn-small" type="submit">Remarcar</button>
+                    </form>
+                    <form method="post" action="{{ url_for('main.update_client_appointment', appointment_id=appointment.id) }}">
+                        <input type="hidden" name="action" value="cancel">
+                        <button class="btn btn-danger btn-small" type="submit">Cancelar</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <p class="muted-text">Voce ainda nao tem marcacoes.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

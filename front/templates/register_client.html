@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}CRM Barbearia | Cadastro de Cliente{% endblock %}
+{% block body_class %}public-auth-body{% endblock %}
+{% block content %}
+<section class="auth-layout">
+    <article class="panel auth-panel large-auth">
+        <span class="eyebrow">Cliente</span>
+        <h1>Criar usuario</h1>
+        <p>Escolha a barbearia e cadastre sua conta para acessar os barbeiros e fazer suas marcacoes.</p>
+        <form method="post" action="{{ url_for('main.register_client') }}" class="stack-form">
+            <label>Nome completo
+                <input type="text" name="full_name" required>
+            </label>
+            <label>CPF
+                <input type="text" name="cpf" required>
+            </label>
+            <label>Email
+                <input type="email" name="email" required>
+            </label>
+            <label>Data de nascimento
+                <input type="date" name="birth_date" required>
+            </label>
+            <label>Senha
+                <input type="password" name="password" required>
+            </label>
+            <label>Empresa
+                <select name="company_id" required>
+                    <option value="">Selecione a barbearia</option>
+                    {% for company in companies %}
+                        <option value="{{ company.id }}">{{ company.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="btn" type="submit">Criar conta</button>
+        </form>
+        <a href="{{ url_for('main.login') }}">Voltar para login</a>
+    </article>
+</section>
+{% endblock %}

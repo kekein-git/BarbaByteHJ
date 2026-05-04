@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Agenda do Barbeiro{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Barbeiro</span>
+        <h1>Horarios</h1>
+        <p>Agenda futura agrupada por dia.</p>
+    </div>
+</section>
+<section class="panel dark-panel">
+    <div class="schedule-list">
+        {% for day, appointments in schedule.items() %}
+            <article class="schedule-day dark-schedule">
+                <h2>{{ day }}</h2>
+                {% for appointment in appointments %}
+                    <div class="appointment-card dark-card">
+                        <strong>{{ appointment.scheduled_at.strftime("%H:%M") }} | {{ appointment.client.full_name }}</strong>
+                        <p>{{ appointment.service.name }}</p>
+                        <p>{{ appointment.note or "Sem observacoes" }}</p>
+                    </div>
+                {% endfor %}
+            </article>
+        {% else %}
+            <p>Nenhum agendamento futuro.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Admin | Pagamentos{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Admin</span>
+        <h1>Pagamentos do sistema</h1>
+        <p>Controle de compra, mensalidade e inadimplencia das empresas que usam o CRM.</p>
+    </div>
+</section>
+
+<section class="content-grid">
+    <article class="panel dark-panel">
+        <h2>Registrar pagamento</h2>
+        <form method="post" action="{{ url_for('main.create_payment') }}" class="stack-form">
+            <label>Empresa
+                <select name="company_id" required>
+                    <option value="">Selecione</option>
+                    {% for company in companies %}
+                        <option value="{{ company.id }}">{{ company.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Referencia<input type="month" name="reference_month" required></label>
+            <label>Valor<input type="number" step="0.01" name="amount" required></label>
+            <label>Vencimento<input type="date" name="due_date" required></label>
+            <label>Data de pagamento<input type="date" name="paid_at"></label>
+            <label>Status
+                <select name="status">
+                    {% for status in payment_statuses %}
+                        <option value="{{ status }}">{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Observacoes<textarea name="notes" rows="4"></textarea></label>
+            <button class="btn" type="submit">Salvar pagamento</button>
+        </form>
+    </article>
+
+    <article class="panel dark-panel">
+        <h2>Historico financeiro</h2>
+        <div class="feed-list">
+            {% for payment in payments %}
+                <div class="feed-item">
+                    <div>
+                        <strong>{{ payment.company.name }}</strong>
+                        <p>{{ payment.reference_month }} | {{ payment.status }} | {{ payment.notes or "Sem observacoes" }}</p>
+                    </div>
+                    <span class="value-badge {{ 'success' if payment.status == 'PAGO' else 'warning' }}">R$ {{ "%.2f"|format(payment.amount) }}</span>
+                </div>
+            {% else %}
+                <p class="muted-text">Nenhum pagamento registrado.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}

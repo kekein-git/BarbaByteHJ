@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Admin | Perfis de Empresas{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Admin</span>
+        <h1>Perfis de empresas</h1>
+        <p>Visualize os dados principais de cada empresa e altere e-mail e senha de acesso do gestor.</p>
+    </div>
+</section>
+
+<section class="stack-section">
+    {% for row in profile_rows %}
+    <article class="panel dark-panel">
+        <div class="panel-title-row">
+            <div>
+                <h2>{{ row.company.name }}</h2>
+                <p class="muted-text">{{ row.company.document_number }} | {{ row.company.plan_name }} | {{ row.company.subscription_status }}</p>
+            </div>
+            <span class="value-badge">{{ "Ativa" if row.company.active else "Inativa" }}</span>
+        </div>
+
+        <div class="content-grid">
+            <div class="profile-summary">
+                <p><strong>Email da empresa:</strong> {{ row.company.email }}</p>
+                <p><strong>Telefone:</strong> {{ row.company.phone or "-" }}</p>
+                <p><strong>Mensalidade:</strong> R$ {{ "%.2f"|format(row.company.monthly_fee or 0) }}</p>
+                <p><strong>Gestor:</strong> {{ row.manager.full_name if row.manager else "Nao definido" }}</p>
+                <p><strong>Email do gestor:</strong> {{ row.manager.email if row.manager else "-" }}</p>
+            </div>
+
+            <form method="post" action="{{ url_for('main.update_company_access', company_id=row.company.id) }}" class="stack-form">
+                <label>Email da empresa
+                    <input type="email" name="company_email" value="{{ row.company.email }}" required>
+                </label>
+                <label>Email do gestor
+                    <input type="email" name="manager_email" value="{{ row.manager.email if row.manager else '' }}" {% if row.manager %}required{% endif %}>
+                </label>
+                <label>Nova senha do gestor
+                    <input type="password" name="manager_password" placeholder="Preencha somente se quiser trocar">
+                </label>
+                <button class="btn" type="submit">Atualizar acesso</button>
+            </form>
+        </div>
+    </article>
+    {% else %}
+    <article class="panel dark-panel">
+        <p class="muted-text">Nenhuma empresa cadastrada.</p>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

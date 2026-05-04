@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Admin | Dashboard{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Admin</span>
+        <h1>Dashboard de empresas</h1>
+        <p>Visao geral do uso do CRM, da carteira de empresas e do faturamento do sistema.</p>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card dark"><span>Empresas</span><strong>{{ metrics.companies_total }}</strong></article>
+    <article class="stat-card dark"><span>Empresas ativas</span><strong>{{ metrics.active_companies }}</strong></article>
+    <article class="stat-card dark"><span>Usuarios</span><strong>{{ metrics.users_total }}</strong></article>
+    <article class="stat-card dark"><span>Agendamentos</span><strong>{{ metrics.appointments_total }}</strong></article>
+    <article class="stat-card dark"><span>Recebido</span><strong>R$ {{ "%.2f"|format(metrics.revenue_paid_total) }}</strong></article>
+    <article class="stat-card dark"><span>Pendente</span><strong>R$ {{ "%.2f"|format(metrics.revenue_pending_total) }}</strong></article>
+</section>
+
+<section class="content-grid">
+    <article class="panel dark-panel">
+        <div class="panel-title-row">
+            <h2>Uso por empresa</h2>
+            <span class="muted-text">Acompanhamento operacional</span>
+        </div>
+        <div class="table-wrap">
+            <table class="dark-table">
+                <thead>
+                    <tr>
+                        <th>Empresa</th>
+                        <th>Barbeiros</th>
+                        <th>Clientes</th>
+                        <th>Servicos</th>
+                        <th>Agendamentos</th>
+                        <th>Ultimo uso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in metrics.company_rows %}
+                    <tr>
+                        <td>{{ row.company.name }}</td>
+                        <td>{{ row.barbers_total }}</td>
+                        <td>{{ row.clients_total }}</td>
+                        <td>{{ row.services_total }}</td>
+                        <td>{{ row.appointments_total }}</td>
+                        <td>{{ row.last_appointment.strftime("%d/%m/%Y %H:%M") if row.last_appointment else "Sem uso" }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6">Nenhuma empresa cadastrada.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <article class="panel dark-panel">
+        <div class="panel-title-row">
+            <h2>Resumo financeiro</h2>
+            <span class="muted-text">Ultimos registros</span>
+        </div>
+        <div class="feed-list">
+            {% for payment in metrics.recent_payments %}
+                <div class="feed-item">
+                    <div>
+                        <strong>{{ payment.company.name }}</strong>
+                        <p>{{ payment.reference_month }} | Vencimento {{ payment.due_date.strftime("%d/%m/%Y") }}</p>
+                    </div>
+                    <span class="value-badge {{ 'success' if payment.status == 'PAGO' else 'warning' }}">R$ {{ "%.2f"|format(payment.amount) }}</span>
+                </div>
+            {% else %}
+                <p class="muted-text">Nenhum pagamento registrado.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Cliente{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+    <div>
+        <span class="eyebrow">Visao do cliente</span>
+        <h1>{{ company.name }}</h1>
+        <p>Escolha o barbeiro, veja servicos disponiveis e marque seu horario.</p>
+    </div>
+</section>
+
+<section class="content-grid">
+    <article class="panel" id="booking">
+        <h2>Nova marcacao</h2>
+        <form method="post" action="{{ url_for('main.create_appointment') }}" class="stack-form">
+            <label>Barbeiro
+                <select name="barber_id" required>
+                    <option value="">Selecione</option>
+                    {% for barber in barbers %}
+                        <option value="{{ barber.id }}">{{ barber.full_name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Servico
+                <select name="service_id" required>
+                    <option value="">Selecione</option>
+                    {% for service in services %}
+                        <option value="{{ service.id }}">{{ service.name }} | R$ {{ "%.2f"|format(service.price) }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Data e horario
+                <input type="datetime-local" name="scheduled_at" required>
+            </label>
+            <label>Observacao
+                <textarea name="note" rows="4" placeholder="Descreva o corte ou pedido especial"></textarea>
+            </label>
+            <button class="btn" type="submit">Marcar horario</button>
+        </form>
+    </article>
+
+    <article class="panel" id="barbers">
+        <h2>Barbeiros da loja</h2>
+        <div class="barber-metrics">
+            {% for barber in barbers %}
+                <div class="metric-line">
+                    <strong>{{ barber.full_name }}</strong>
+                    <span>Servicos:</span>
+                    <span>
+                        {% if barber.barber_services %}
+                            {{ barber.barber_services | map(attribute='name') | join(', ') }}
+                        {% else %}
+                            Todos os servicos da empresa
+                        {% endif %}
+                    </span>
+                </div>
+            {% else %}
+                <p>Nenhum barbeiro disponivel.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+
+<section class="panel" id="my-bookings">
+    <h2>Minhas marcacoes</h2>
+    <div class="appointment-stack">
+        {% for appointment in appointments %}
+            <div class="appointment-card">
+                <div>
+                    <strong>{{ appointment.service.name }}</strong>
+                    <p>Barbeiro: {{ appointment.barber.full_name }}</p>
+                    <p>{{ appointment.scheduled_at.strftime("%d/%m/%Y %H:%M") }} | {{ appointment.status }}</p>
+                    <p>Obs: {{ appointment.note or "Sem observacoes" }}</p>
+                </div>
+                {% if appointment.status != "CANCELADO" and appointment.status != "FINALIZADO" %}
+                <div class="dual-form">
+                    <form method="post" action="{{ url_for('main.update_client_appointment', appointment_id=appointment.id) }}" class="stack-form mini-form">
+                        <input type="hidden" name="action" value="reschedule">
+                        <input type="datetime-local" name="scheduled_at" required>
+                        <textarea name="note" rows="2" placeholder="Nova observacao"></textarea>
+                        <button class="btn btn-small" type="submit">Remarcar</button>
+                    </form>
+                    <form method="post" action="{{ url_for('main.update_client_appointment', appointment_id=appointment.id) }}">
+                        <input type="hidden" name="action" value="cancel">
+                        <button class="btn btn-danger btn-small" type="submit">Cancelar</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <p>Voce ainda nao tem marcacoes.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

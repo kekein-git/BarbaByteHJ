@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Empresa | Barbeiros{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Empresa</span>
+        <h1>Cadastro de barbeiro</h1>
+        <p>Gerencie a equipe de barbeiros vinculada a sua barbearia.</p>
+    </div>
+</section>
+
+<section class="content-grid">
+    <article class="panel dark-panel">
+        <h2>Novo barbeiro</h2>
+        <form method="post" action="{{ url_for('main.create_company_user') }}" class="stack-form">
+            <label>Nome completo<input type="text" name="full_name" required></label>
+            <label>Email<input type="email" name="email" required></label>
+            <label>Telefone<input type="text" name="phone"></label>
+            <label>CPF<input type="text" name="cpf" required></label>
+            <label>RG do barbeiro<input type="text" name="rg"></label>
+            <label>Carteira de trabalho<input type="text" name="work_card"></label>
+            <label>Data de nascimento<input type="date" name="birth_date"></label>
+            <label>Inicio de trabalho<input type="date" name="employment_start_date"></label>
+            <label>Senha<input type="password" name="password" required></label>
+            <label>Perfil
+                <select name="role" required>
+                    <option value="BARBEIRO">Barbeiro</option>
+                </select>
+            </label>
+            <button class="btn" type="submit">Salvar cadastro</button>
+        </form>
+    </article>
+
+    <article class="panel dark-panel">
+        <h2>Equipe de barbeiros</h2>
+        <div class="table-wrap">
+            <table class="dark-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Perfil</th>
+                        <th>CPF</th>
+                        <th>Email</th>
+                        <th>Nascimento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in barbers %}
+                    <tr>
+                        <td>{{ user.full_name }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>{{ user.cpf or "-" }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.birth_date.strftime("%d/%m/%Y") if user.birth_date else "-" }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5">Nenhum barbeiro cadastrado.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+{% endblock %}

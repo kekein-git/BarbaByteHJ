@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Empresa | Clientes{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Empresa</span>
+        <h1>Clientes</h1>
+        <p>Veja os clientes da sua empresa e edite os dados cadastrais de cada um.</p>
+    </div>
+</section>
+
+<section class="panel dark-panel">
+    <h2>Novo cliente</h2>
+    <form method="post" action="{{ url_for('main.create_company_user') }}" class="stack-form">
+        <input type="hidden" name="role" value="CLIENTE">
+        <div class="content-grid">
+            <label>Nome completo
+                <input type="text" name="full_name" required>
+            </label>
+            <label>Email
+                <input type="email" name="email" required>
+            </label>
+            <label>Telefone
+                <input type="text" name="phone">
+            </label>
+            <label>CPF
+                <input type="text" name="cpf" required>
+            </label>
+            <label>Data de nascimento
+                <input type="date" name="birth_date" required>
+            </label>
+            <label>Senha
+                <input type="password" name="password" required>
+            </label>
+        </div>
+        <div class="form-actions">
+            <button class="btn" type="submit">Cadastrar cliente</button>
+        </div>
+    </form>
+</section>
+
+<section class="stack-section">
+    {% for client in clients %}
+    <article class="panel dark-panel">
+        <div class="panel-title-row">
+            <div>
+                <h2>{{ client.full_name }}</h2>
+                <p class="muted-text">{{ client.email }} | CPF {{ client.cpf or "-" }}</p>
+            </div>
+            <span class="value-badge">{{ client.birth_date.strftime("%d/%m/%Y") if client.birth_date else "Sem nascimento" }}</span>
+        </div>
+        <form method="post" action="{{ url_for('main.update_company_client', client_id=client.id) }}" class="stack-form">
+            <div class="content-grid">
+                <label>Nome completo
+                    <input type="text" name="full_name" value="{{ client.full_name }}" required>
+                </label>
+                <label>Email
+                    <input type="email" name="email" value="{{ client.email }}" required>
+                </label>
+                <label>Telefone
+                    <input type="text" name="phone" value="{{ client.phone or '' }}">
+                </label>
+                <label>CPF
+                    <input type="text" name="cpf" value="{{ client.cpf or '' }}" required>
+                </label>
+                <label>Data de nascimento
+                    <input type="date" name="birth_date" value="{{ client.birth_date.isoformat() if client.birth_date else '' }}" required>
+                </label>
+                <label>Nova senha
+                    <input type="password" name="password" placeholder="Preencha somente se quiser trocar">
+                </label>
+            </div>
+            <div class="form-actions">
+                <button class="btn" type="submit">Salvar cliente</button>
+            </div>
+        </form>
+    </article>
+    {% else %}
+    <article class="panel dark-panel">
+        <p class="muted-text">Nenhum cliente cadastrado nesta empresa.</p>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

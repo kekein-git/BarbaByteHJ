@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Admin | E-mail SMTP{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Admin</span>
+        <h1>Configuracao de e-mail</h1>
+        <p>Configure qualquer provedor SMTP para envio de notificacoes por e-mail.</p>
+    </div>
+</section>
+
+<section class="content-grid">
+    <article class="panel dark-panel">
+        <h2>SMTP principal</h2>
+        <form method="post" action="{{ url_for('main.save_email_settings') }}" class="stack-form">
+            <label class="checkbox-row"><input type="checkbox" name="mail_enabled" {% if settings and settings.mail_enabled %}checked{% endif %}> Ativar envio de e-mail</label>
+            <label>Servidor SMTP
+                <input type="text" name="mail_host" value="{{ settings.mail_host if settings else '' }}" placeholder="smtp.seuprovedor.com">
+            </label>
+            <label>Porta
+                <input type="number" name="mail_port" value="{{ settings.mail_port if settings else 587 }}">
+            </label>
+            <label>Usuario SMTP
+                <input type="text" name="mail_username" value="{{ settings.mail_username if settings else '' }}" placeholder="seu-email@dominio.com">
+            </label>
+            <label>Senha SMTP
+                <input type="password" name="mail_password" placeholder="Deixe em branco para manter a atual">
+            </label>
+            <label class="checkbox-row"><input type="checkbox" name="mail_use_tls" {% if not settings or settings.mail_use_tls %}checked{% endif %}> Usar TLS</label>
+            <label>E-mail remetente
+                <input type="email" name="mail_from" value="{{ settings.mail_from if settings else '' }}" placeholder="no-reply@dominio.com">
+            </label>
+            <button class="btn" type="submit">Salvar configuracao</button>
+        </form>
+    </article>
+
+    <article class="panel dark-panel">
+        <h2>Teste de envio</h2>
+        <form method="post" action="{{ url_for('main.test_email_settings') }}" class="stack-form">
+            <label>E-mail de destino
+                <input type="email" name="test_recipient" placeholder="Se vazio, envia para seu e-mail de admin">
+            </label>
+            <button class="btn" type="submit">Enviar teste</button>
+        </form>
+        <div class="profile-summary">
+            <p><strong>Exemplos de uso:</strong></p>
+            <p>Gmail Workspace, Outlook, Hostinger, Zoho, SendGrid, UOL Host e qualquer SMTP comum.</p>
+            <p><strong>Dica:</strong> alguns provedores exigem senha de app ou autenticacao especifica.</p>
+        </div>
+    </article>
+</section>
+{% endblock %}

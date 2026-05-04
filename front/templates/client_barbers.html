@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Cliente | Barbeiros{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Cliente</span>
+        <h1>Barbeiros da {{ company.name }}</h1>
+        <p>Veja os profissionais disponiveis e os servicos liberados para cada um.</p>
+    </div>
+</section>
+
+<section class="content-grid">
+    {% for barber in barbers %}
+    <article class="panel dark-panel">
+        <h2>{{ barber.full_name }}</h2>
+        <p>Email: {{ barber.email }}</p>
+        <p>Servicos:</p>
+        <div class="tag-list">
+            {% if barber.barber_services %}
+                {% for service in barber.barber_services %}
+                    <span class="tag">{{ service.name }}</span>
+                {% endfor %}
+            {% else %}
+                <span class="tag">Todos os servicos da empresa</span>
+            {% endif %}
+        </div>
+    </article>
+    {% else %}
+    <article class="panel dark-panel">
+        <p class="muted-text">Nenhum barbeiro disponivel.</p>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

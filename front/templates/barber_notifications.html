@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Barbeiro | Notificacoes{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Barbeiro</span>
+        <h1>Notificacoes</h1>
+        <p>Todas as atualizacoes de agendamentos recebidas no sistema.</p>
+    </div>
+</section>
+
+<section class="panel dark-panel">
+    <div class="feed-list">
+        {% for notification in notifications %}
+            <div class="feed-item align-start">
+                <div>
+                    <strong>{{ notification.title }}</strong>
+                    <p>{{ notification.message }}</p>
+                    <p>{{ notification.created_at.strftime("%d/%m/%Y %H:%M") }}</p>
+                </div>
+                <div class="feed-actions">
+                    {% if not notification.is_read %}
+                    <form method="post" action="{{ url_for('main.read_notification', notification_id=notification.id) }}">
+                        <button class="btn btn-small" type="submit">Marcar lida</button>
+                    </form>
+                    {% else %}
+                    <span class="value-badge success">Lida</span>
+                    {% endif %}
+                    <form method="post" action="{{ url_for('main.delete_notification', notification_id=notification.id) }}">
+                        <button class="btn btn-danger btn-small" type="submit">Excluir</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <p class="muted-text">Sem notificacoes novas.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

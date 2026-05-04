@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Admin | Empresas{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Admin</span>
+        <h1>Cadastro de empresas</h1>
+        <p>Crie novas empresas compradoras do CRM e defina plano, permissões e gestor principal.</p>
+    </div>
+</section>
+
+<section class="content-grid">
+    <article class="panel dark-panel">
+        <h2>Nova empresa</h2>
+        <form method="post" action="{{ url_for('main.create_company') }}" class="stack-form">
+            <label>Nome da empresa<input type="text" name="name" required></label>
+            <label>CNPJ ou CPF<input type="text" name="document_number" required></label>
+            <label>Email da empresa<input type="email" name="email" required></label>
+            <label>Telefone<input type="text" name="phone"></label>
+            <label>Plano<input type="text" name="plan_name" value="Plano Padrao"></label>
+            <label>Mensalidade<input type="number" step="0.01" name="monthly_fee" value="0"></label>
+            <label>Dia de cobranca<input type="number" min="1" max="31" name="billing_day" value="5"></label>
+            <label>Status da assinatura
+                <select name="subscription_status">
+                    <option value="ATIVA">Ativa</option>
+                    <option value="TESTE">Teste</option>
+                    <option value="BLOQUEADA">Bloqueada</option>
+                </select>
+            </label>
+            <label>Nome do gestor<input type="text" name="manager_name" required></label>
+            <label>Email do gestor<input type="email" name="manager_email" required></label>
+            <label>CPF do gestor<input type="text" name="manager_cpf"></label>
+            <label>Senha do gestor<input type="password" name="manager_password" required></label>
+            <label class="checkbox-row"><input type="checkbox" name="allow_online_booking" checked> Permitir agendamento online</label>
+            <label class="checkbox-row"><input type="checkbox" name="allow_financial_dashboard" checked> Permitir dashboard financeiro</label>
+            <label class="checkbox-row"><input type="checkbox" name="allow_barber_notifications" checked> Permitir notificacoes para barbeiros</label>
+            <button class="btn" type="submit">Cadastrar empresa</button>
+        </form>
+    </article>
+
+    <article class="panel dark-panel">
+        <h2>Empresas ativas no CRM</h2>
+        <div class="table-wrap">
+            <table class="dark-table">
+                <thead>
+                    <tr>
+                        <th>Empresa</th>
+                        <th>Documento</th>
+                        <th>Plano</th>
+                        <th>Mensalidade</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for company in companies %}
+                    <tr>
+                        <td>{{ company.name }}</td>
+                        <td>{{ company.document_number or "-" }}</td>
+                        <td>{{ company.plan_name or "-" }}</td>
+                        <td>R$ {{ "%.2f"|format(company.monthly_fee or 0) }}</td>
+                        <td>{{ company.subscription_status or "-" }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5">Nenhuma empresa cadastrada.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+{% endblock %}

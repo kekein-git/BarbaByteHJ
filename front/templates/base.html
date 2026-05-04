@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CRM Barbearia{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <div class="app-shell {% if current_user.is_authenticated %}with-sidebar{% endif %}">
+        {% if current_user.is_authenticated %}
+        <header class="topbar">
+            <div>
+                <a class="brand" href="{{ url_for('main.index') }}">CRM Barbearia</a>
+                <p class="subtitle">Gestao de agenda, equipe e clientes</p>
+            </div>
+            <nav class="nav">
+                {% if current_user.is_authenticated %}
+                    <span class="nav-user">{{ current_user.full_name }} | {{ current_user.role }}</span>
+                    <a class="btn btn-outline" href="{{ url_for('main.dashboard') }}">Painel</a>
+                    <a class="btn btn-outline" href="{{ url_for('main.logout') }}">Sair</a>
+                {% else %}
+                    <a class="btn btn-outline" href="{{ url_for('main.login') }}">Entrar</a>
+                {% endif %}
+            </nav>
+        </header>
+        {% endif %}
+
+        {% if current_user.is_authenticated %}
+        <aside class="sidebar">
+            <div class="sidebar-head">
+                <span class="eyebrow">Menu</span>
+                <h2>{{ current_user.role }}</h2>
+            </div>
+            <nav class="sidebar-nav">
+                {% for item in role_menu_items %}
+                    <a href="{{ item.href }}">{{ item.label }}</a>
+                {% endfor %}
+            </nav>
+        </aside>
+        {% endif %}
+
+    <main class="page {% if current_user.is_authenticated %}page-with-sidebar{% else %}public-page{% endif %}">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <section class="flash-list {% if not current_user.is_authenticated %}public-flash-list{% endif %}">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </section>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Empresa | Dashboard{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Empresa</span>
+        <h1>{{ metrics.company.name }}</h1>
+        <p>Painel principal da empresa com resultados, agenda e desempenho da equipe.</p>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card dark"><span>Barbeiros</span><strong>{{ metrics.barbers_total }}</strong></article>
+    <article class="stat-card dark"><span>Clientes</span><strong>{{ metrics.clients_total }}</strong></article>
+    <article class="stat-card dark"><span>Servicos</span><strong>{{ metrics.services_total }}</strong></article>
+    {% if metrics.company.allow_financial_dashboard %}
+    <article class="stat-card dark"><span>Receita total</span><strong>R$ {{ "%.2f"|format(metrics.revenue_total) }}</strong></article>
+    <article class="stat-card dark"><span>Receita mensal</span><strong>R$ {{ "%.2f"|format(metrics.revenue_month) }}</strong></article>
+    {% endif %}
+    <article class="stat-card dark"><span>Servicos no mes</span><strong>{{ metrics.finished_month }}</strong></article>
+</section>
+
+<section class="content-grid">
+    <article class="panel dark-panel">
+        <h2>Lucro por barbeiro</h2>
+        {% if metrics.company.allow_financial_dashboard %}
+        <div class="feed-list">
+            {% for item in metrics.barber_metrics %}
+                <div class="feed-item">
+                    <div>
+                        <strong>{{ item.barber.full_name }}</strong>
+                        <p>{{ item.services_total }} servicos | {{ item.upcoming }} proximos</p>
+                    </div>
+                    <span class="value-badge success">R$ {{ "%.2f"|format(item.month_value) }}</span>
+                </div>
+            {% else %}
+                <p class="muted-text">Nenhum barbeiro cadastrado.</p>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="muted-text">O financeiro desta empresa foi bloqueado pelo ADMIN.</p>
+        {% endif %}
+    </article>
+
+    <article class="panel dark-panel">
+        <h2>Agendamentos recentes</h2>
+        <div class="feed-list">
+            {% for appointment in appointments %}
+                <div class="feed-item">
+                    <div>
+                        <strong>{{ appointment.client.full_name }}</strong>
+                        <p>{{ appointment.service.name }} com {{ appointment.barber.full_name }} | {{ appointment.scheduled_at.strftime("%d/%m/%Y %H:%M") }}</p>
+                    </div>
+                    <span class="value-badge">{{ appointment.status }}</span>
+                </div>
+            {% else %}
+                <p class="muted-text">Nenhum agendamento registrado.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}

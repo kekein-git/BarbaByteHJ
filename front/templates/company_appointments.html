@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Empresa | Agendamentos{% endblock %}
+{% block content %}
+<section class="screen-header">
+    <div>
+        <span class="eyebrow dark">Empresa</span>
+        <h1>Agendamentos</h1>
+        <p>O administrador da empresa pode revisar e alterar qualquer marcacao da propria barbearia.</p>
+    </div>
+</section>
+
+<section class="panel dark-panel">
+    <h2>Filtros</h2>
+    <form method="get" action="{{ url_for('main.company_appointments_page') }}" class="inline-form appointment-filter-form">
+        <select name="status">
+            <option value="">Todos os status</option>
+            {% for status in appointment_statuses %}
+                <option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status }}</option>
+            {% endfor %}
+        </select>
+        <select name="barber_id">
+            <option value="">Todos os barbeiros</option>
+            {% for barber in barbers %}
+                <option value="{{ barber.id }}" {% if filters.barber_id == barber.id %}selected{% endif %}>{{ barber.full_name }}</option>
+            {% endfor %}
+        </select>
+        <select name="client_id">
+            <option value="">Todos os clientes</option>
+            {% for client in clients %}
+                <option value="{{ client.id }}" {% if filters.client_id == client.id %}selected{% endif %}>{{ client.full_name }}</option>
+            {% endfor %}
+        </select>
+        <input type="date" name="date_from" value="{{ filters.date_from }}">
+        <input type="date" name="date_to" value="{{ filters.date_to }}">
+        <button class="btn btn-small" type="submit">Filtrar</button>
+        <a class="btn btn-secondary btn-small" href="{{ url_for('main.company_appointments_page') }}">Limpar</a>
+    </form>
+</section>
+
+<section class="panel dark-panel">
+    <h2>Gerenciar marcacoes</h2>
+    <div class="feed-list">
+        {% for appointment in appointments %}
+            <div class="feed-item column-feed">
+                <div class="split-line">
+                    <div>
+                        <strong>{{ appointment.client.full_name }}</strong>
+                        <p>{{ appointment.service.name }} com {{ appointment.barber.full_name }}</p>
+                        <p>{{ appointment.scheduled_at.strftime("%d/%m/%Y %H:%M") }}</p>
+                        <p>Obs: {{ appointment.note or "Sem observacoes" }}</p>
+                        {% if appointment.cancellation_reason %}
+                        <p>Motivo cancelamento: {{ appointment.cancellation_reason }}</p>
+                        {% endif %}
+                    </div>
+                    <span class="value-badge">{{ appointment.status }}</span>
+                </div>
+                <form method="post" action="{{ url_for('main.company_change_appointment_status', appointment_id=appointment.id) }}" class="inline-form appointment-admin-form">
+                    <select name="status">
+                        {% for status in appointment_statuses %}
+                            <option value="{{ status }}" {% if appointment.status == status %}selected{% endif %}>{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="cancellation_reason" value="{{ appointment.cancellation_reason or '' }}" placeholder="Motivo do cancelamento, se houver">
+                    <button class="btn btn-small" type="submit">Salvar status</button>
+                </form>
+            </div>
+        {% else %}
+            <p class="muted-text">Nenhum agendamento registrado.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

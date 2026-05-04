@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Barbeiro{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+    <div>
+        <span class="eyebrow">Visao do barbeiro</span>
+        <h1>Agenda e notificacoes</h1>
+    </div>
+    <a class="btn" href="{{ url_for('main.barber_schedule') }}">Ver agenda agrupada</a>
+</section>
+
+<section class="content-grid">
+    <article class="panel" id="notifications">
+        <h2>Notificacoes</h2>
+        <div class="notification-list">
+            {% for notification in notifications %}
+                <div class="notification-item {{ 'is-read' if notification.is_read }}">
+                    <div>
+                        <strong>{{ notification.title }}</strong>
+                        <p>{{ notification.message }}</p>
+                    </div>
+                    {% if not notification.is_read %}
+                    <form method="post" action="{{ url_for('main.read_notification', notification_id=notification.id) }}">
+                        <button class="btn btn-small" type="submit">Marcar como lida</button>
+                    </form>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p>Sem notificacoes novas.</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="panel" id="appointments">
+        <h2>Agendamentos recebidos</h2>
+        <div class="appointment-stack">
+            {% for appointment in appointments %}
+                <div class="appointment-card">
+                    <strong>{{ appointment.client.full_name }}</strong>
+                    <p>{{ appointment.service.name }} | {{ appointment.scheduled_at.strftime("%d/%m/%Y %H:%M") }}</p>
+                    <p>Status: {{ appointment.status }}</p>
+                    <p>Observacao: {{ appointment.note or "Sem observacoes" }}</p>
+                </div>
+            {% else %}
+                <p>Nenhum horario recebido.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}
